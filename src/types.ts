@@ -23,7 +23,7 @@ export type Slide = {
   duration?: number;
   cta?: Cta | null;
   onOverview?: boolean;
-  kind?: 'welcome' | 'event' | 'schedule' | 'birthday';
+  kind?: 'welcome' | 'event' | 'schedule' | 'birthday' | 'ministry' | 'recruitment' | 'outreach' | 'notice' | 'link';
 };
 
 export type AppSettings = {
