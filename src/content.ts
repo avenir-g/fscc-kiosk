@@ -1,13 +1,46 @@
 import type { AppContent, Slide } from './types';
 
 export const defaultContent: AppContent = {
-  version: '0.2.0',
+  version: '0.3.0',
   title: 'FSCC Dynamic Church Kiosk',
   settings: {
     defaultDuration: 12,
     accentColor: '#0E85B5',
     backgroundColor: '#F5F3EE',
     theme: 'light',
+    stagePadding: {
+      top: 32,
+      right: 32,
+      bottom: 32,
+      left: 32,
+    },
+    cardGap: 18,
+    animationConfig: {
+      headingDuration: 420,
+      bodyDuration: 540,
+      staggerDelay: 90,
+    },
+    defaultMediaMotion: 'zoom-pan',
+    qrDefaults: {
+      enabled: true,
+      value: 'https://links.fscchurch.com/',
+      size: 160,
+      position: 'br',
+      offset: 18,
+      borderRadius: 16,
+    },
+    birthdayConfig: {
+      enabled: true,
+      names: ['Grace', 'Noah', 'Elena'],
+      date: 'Today',
+      darkness: 0.55,
+      backgroundMedia: {
+        type: 'image',
+        src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1800&q=80',
+        alt: 'Birthday celebration',
+        mode: 'ken-burns',
+      },
+    },
   },
   slides: [
     {
@@ -17,6 +50,7 @@ export const defaultContent: AppContent = {
       subheading: 'Welcome to FSCC',
       body: ['A joyful season of fellowship, worship, and community.'],
       tags: ['FSCC', 'Harvest', 'Welcome'],
+      layout: 'hero',
       media: [
         {
           type: 'image',
@@ -34,13 +68,14 @@ export const defaultContent: AppContent = {
       id: 'harvest-celebration',
       kind: 'event',
       title: 'Harvest Celebration & Fellowship Lunch',
-      subheading: 'September 27 at 1:00 PM',
+      subheading: 'September 27 • 1:00 PM',
       body: [
-        'Join us for a joyful time of food, fellowship, and gratitude after Sunday service.',
+        'Join us for a joyful time of food, fellowship, and gratitude.',
         'Location: FSCC Fellowship Hall',
-        'Questions? Contact Lena Samokha (720) 933-5320 or Zhenya Loboda (303) 579-9726',
+        'Questions? Lena Samokha (720) 933-5320 / Zhenya Loboda (303) 579-9726',
       ],
       tags: ['Food', 'Community', 'Harvest'],
+      layout: 'large',
       media: [
         {
           type: 'image',
@@ -49,22 +84,42 @@ export const defaultContent: AppContent = {
           mode: 'zoom-pan',
         },
       ],
-      surface: 'automatic',
+      surface: 'light',
       motion: 'zoom-pan',
       duration: 12,
+      onOverview: true,
+    },
+    {
+      id: 'weekly-schedule',
+      kind: 'schedule',
+      title: 'Weekly Schedule',
+      subheading: 'Church rhythm',
+      body: [
+        'Sunday 10:00 AM — Morning Service',
+        'Sunday 6:00 PM — Youth Service',
+        'Monday 7:00 PM — Youth Prayer',
+        'Tuesday 7:00 PM — Church Prayer',
+        'Wednesday 7:00 PM — Bible Study',
+        'Friday 7:00 PM — Prayer Service',
+      ],
+      tags: ['Schedule', 'Prayer', 'Weekly'],
+      layout: 'medium',
+      surface: 'dark',
+      duration: 13,
       onOverview: true,
     },
     {
       id: 'cabin-trip',
       kind: 'event',
       title: '5280 Youth Cabin Trip',
-      subheading: 'October 2–4, 2026 | Grand Lake, Colorado',
+      subheading: 'October 2–4 • Grand Lake',
       body: [
         'An unforgettable weekend away for youth fellowship and growth.',
         'Registration open through Church Center.',
         'Questions? Contact your youth leader.',
       ],
       tags: ['Youth', 'Trip', 'Adventure'],
+      layout: 'medium',
       media: [
         {
           type: 'image',
@@ -82,13 +137,14 @@ export const defaultContent: AppContent = {
       id: 'young-kids-ministry',
       kind: 'ministry',
       title: 'Young Kids Ministry',
-      subheading: 'Ages 2–7 | Sundays',
+      subheading: 'Ages 2–7',
       body: [
         'A safe, loving, and Christ-centered environment for children.',
-        'Location: First Floor (after first part of sermon)',
-        'Volunteers needed! Contact Karina Mishchenkov (720) 687-7981 or Yulia Makaryan (720) 281-7692',
+        'Location: First Floor after the first part of the sermon.',
+        'Volunteers needed! Contact Karina Mishchenkov (720) 687-7981 or Yulia Makaryan (720) 281-7692.',
       ],
       tags: ['Kids', 'Ministry', 'Volunteers'],
+      layout: 'small',
       media: [
         {
           type: 'image',
@@ -99,7 +155,7 @@ export const defaultContent: AppContent = {
       ],
       surface: 'automatic',
       motion: 'zoom-pan',
-      duration: 12,
+      duration: 11,
       onOverview: true,
     },
     {
@@ -110,9 +166,10 @@ export const defaultContent: AppContent = {
       body: [
         'Classes for Preschool through High School. Make an eternal impact!',
         'We need teachers and volunteers of all ages.',
-        'Contact Alla Rukosuyev (303) 406-8609 (text preferred)',
+        'Contact Alla Rukosuyev (303) 406-8609 (text preferred).',
       ],
       tags: ['Volunteer', 'Education', 'Community'],
+      layout: 'small',
       media: [
         {
           type: 'image',
@@ -123,20 +180,21 @@ export const defaultContent: AppContent = {
       ],
       surface: 'automatic',
       motion: 'zoom-pan',
-      duration: 12,
+      duration: 11,
       onOverview: true,
     },
     {
       id: 'russian-school-assistants',
       kind: 'recruitment',
       title: 'Russian School Assistants',
-      subheading: 'Language · Reading · Culture',
+      subheading: 'Language, Reading, Culture',
       body: [
         'Teachers needed for Russian Language, Reading, and Culture school.',
         'We are looking for kind, responsible individuals who love children.',
-        'Contact Inna Cherniy (202) 913-7555',
+        'Contact Inna Cherniy (202) 913-7555.',
       ],
       tags: ['Volunteer', 'Russian', 'Education'],
+      layout: 'small',
       media: [
         {
           type: 'image',
@@ -147,20 +205,21 @@ export const defaultContent: AppContent = {
       ],
       surface: 'automatic',
       motion: 'zoom-pan',
-      duration: 12,
+      duration: 11,
       onOverview: true,
     },
     {
       id: 'serve-5280-youth',
       kind: 'ministry',
       title: 'Serve with 5280 Youth',
-      subheading: 'Find Your Place',
+      subheading: 'Find your place',
       body: [
-        'Service opportunities in youth ministry: Video & Audio, Worship, Media, Coffee Shop, Events, and more.',
-        'Look for roles that align with your F.A.I.T.H.: Faithful, Available, Intentional, Teachable, and Heart after God.',
+        'Service opportunities in youth ministry: video, worship, media, coffee shop, events, and more.',
+        'Look for roles that align with F.A.I.T.H.',
         'Ask a youth leader how you can serve.',
       ],
       tags: ['Youth', 'Volunteer', 'Ministry'],
+      layout: 'medium',
       media: [
         {
           type: 'image',
@@ -178,13 +237,14 @@ export const defaultContent: AppContent = {
       id: 'meal-ministry',
       kind: 'ministry',
       title: 'Meal Ministry',
-      subheading: 'Share & Serve',
+      subheading: 'Share and serve',
       body: [
         'Share a meal for those in need. Serve God by serving others.',
         'Whether you want to contribute a meal or need support, we are here to help.',
-        'Contact Lena Samokha (720) 933-5320',
+        'Contact Lena Samokha (720) 933-5320.',
       ],
       tags: ['Service', 'Community', 'Care'],
+      layout: 'small',
       media: [
         {
           type: 'image',
@@ -195,7 +255,7 @@ export const defaultContent: AppContent = {
       ],
       surface: 'automatic',
       motion: 'zoom-pan',
-      duration: 12,
+      duration: 11,
       onOverview: true,
     },
     {
@@ -209,6 +269,7 @@ export const defaultContent: AppContent = {
         'Meet at FSCC 15 minutes before departure.',
       ],
       tags: ['Outreach', 'Community', 'Service'],
+      layout: 'small',
       media: [
         {
           type: 'image',
@@ -219,25 +280,26 @@ export const defaultContent: AppContent = {
       ],
       surface: 'automatic',
       motion: 'zoom-pan',
-      duration: 12,
+      duration: 11,
       onOverview: true,
     },
     {
       id: 'sanctuary-guidelines',
       kind: 'notice',
-      title: 'Sanctuary Guidelines',
-      subheading: 'Preparing Our Worship Space',
+      title: 'No Food or Drinks in the Sanctuary',
+      subheading: 'During worship',
       body: [
         'No food or drinks in the sanctuary during worship.',
         'Please silence cell phones before entering.',
         'This helps us maintain a focused, reverent environment for all.',
       ],
       tags: ['Worship', 'Guidelines', 'Respect'],
+      layout: 'small',
       media: [
         {
           type: 'image',
           src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1800&q=80',
-          alt: 'Peaceful sanctuary',
+          alt: 'Sanctuary',
           mode: 'zoom-pan',
         },
       ],
@@ -247,41 +309,26 @@ export const defaultContent: AppContent = {
       onOverview: true,
     },
     {
-      id: 'coffee-shop',
-      kind: 'ministry',
-      title: 'Coffee Shop',
-      subheading: 'Fellowship & Hospitality',
-      body: [
-        'A welcoming space for fellowship before and after services.',
-        'Café volunteers keep us connected and caffeinated!',
-        'Contact Polina Tsuber (720) 237-6033 to join the café team.',
-      ],
-      tags: ['Fellowship', 'Volunteer', 'Community'],
-      media: [
-        {
-          type: 'image',
-          src: 'https://images.unsplash.com/photo-1502551785612-a674fb0eeef8?auto=format&fit=crop&w=1800&q=80',
-          alt: 'Coffee fellowship',
-          mode: 'zoom-pan',
-        },
-      ],
-      surface: 'automatic',
-      motion: 'zoom-pan',
-      duration: 12,
-      onOverview: true,
-    },
-    {
       id: 'connect-fscc',
       kind: 'link',
       title: 'Stay Connected with FSCC',
-      subheading: 'Online Resources',
+      subheading: 'Find FSCC online',
       body: [
-        'Visit fscchurch.com to explore our website and resources.',
+        'Visit fscchurch.com and explore our church resources.',
+        'Use Church Center for events, giving, and updates.',
         'Follow us on YouTube, Instagram, and Facebook.',
-        'Use Church Center to access events, giving, and more.',
       ],
       tags: ['Website', 'Connect', 'Online'],
+      layout: 'large',
       cta: { label: 'Visit Website', href: 'https://fscchurch.com/' },
+      qr: {
+        enabled: true,
+        value: 'https://links.fscchurch.com/',
+        size: 160,
+        position: 'br',
+        offset: 18,
+        borderRadius: 16,
+      },
       media: [
         {
           type: 'image',
@@ -296,21 +343,41 @@ export const defaultContent: AppContent = {
       onOverview: true,
     },
     {
-      id: 'weekly-schedule',
-      kind: 'schedule',
-      title: 'Weekly Schedule',
-      subheading: 'Church Rhythm for the Week',
+      id: 'coffee-shop',
+      kind: 'ministry',
+      title: 'Coffee Shop',
+      subheading: 'Fellowship & hospitality',
       body: [
-        'Sunday 10:00 AM — Morning Service',
-        'Sunday 6:00 PM — Youth Service',
-        'Monday 7:00 PM — Youth Prayer',
-        'Tuesday 7:00 PM — Church Prayer',
-        'Wednesday 7:00 PM — Bible Study',
-        'Friday 7:00 PM — Prayer Service',
+        'A welcoming space for fellowship before and after services.',
+        'Café volunteers help keep our community connected and warm.',
+        'Contact Polina Tsuber (720) 237-6033 to join the café team.',
       ],
-      tags: ['Schedule', 'Prayer', 'Weekly'],
-      surface: 'light',
-      duration: 13,
+      tags: ['Fellowship', 'Volunteer', 'Community'],
+      layout: 'small',
+      media: [
+        {
+          type: 'image',
+          src: 'https://images.unsplash.com/photo-1502551785612-a674fb0eeef8?auto=format&fit=crop&w=1800&q=80',
+          alt: 'Coffee fellowship',
+          mode: 'zoom-pan',
+        },
+      ],
+      surface: 'automatic',
+      motion: 'zoom-pan',
+      duration: 11,
+      onOverview: true,
+    },
+    {
+      id: 'birthday',
+      kind: 'birthday',
+      title: 'Happy Birthday',
+      subheading: 'Celebrating together',
+      body: ['Grace', 'Noah', 'Elena'],
+      tags: ['Birthday', 'Community', 'Joy'],
+      layout: 'hero',
+      surface: 'dark',
+      motion: 'static',
+      duration: 10,
       onOverview: true,
     },
   ],
@@ -336,10 +403,13 @@ export function validateContent(value: unknown): AppContent | null {
         surface: slide.surface ?? 'automatic',
         motion: slide.motion ?? 'zoom-pan',
         duration: typeof slide.duration === 'number' ? slide.duration : undefined,
+        customDurationEnabled: !!slide.customDurationEnabled,
         cta: slide.cta && typeof slide.cta === 'object' ? slide.cta as Slide['cta'] : null,
         subheading: typeof slide.subheading === 'string' ? slide.subheading : undefined,
         kind: slide.kind ?? 'event',
         media: Array.isArray(slide.media) ? slide.media : undefined,
+        layout: slide.layout ?? 'medium',
+        qr: slide.qr && typeof slide.qr === 'object' ? slide.qr as Slide['qr'] : undefined,
       };
       return safeSlide;
     })
@@ -348,7 +418,7 @@ export function validateContent(value: unknown): AppContent | null {
   if (safeSlides.length === 0) return null;
 
   return {
-    version: typeof candidate.version === 'string' ? candidate.version : '0.2.0',
+    version: typeof candidate.version === 'string' ? candidate.version : '0.3.0',
     title: typeof candidate.title === 'string' ? candidate.title : 'FSCC Dynamic Church Kiosk',
     settings: {
       defaultDuration:
@@ -360,6 +430,24 @@ export function validateContent(value: unknown): AppContent | null {
           ? candidate.settings.backgroundColor
           : '#F5F3EE',
       theme: candidate.settings?.theme === 'dark' ? 'dark' : 'light',
+      stagePadding: candidate.settings?.stagePadding ?? { top: 32, right: 32, bottom: 32, left: 32 },
+      cardGap: typeof candidate.settings?.cardGap === 'number' ? candidate.settings.cardGap : 18,
+      animationConfig: candidate.settings?.animationConfig ?? { headingDuration: 420, bodyDuration: 540, staggerDelay: 90 },
+      defaultMediaMotion: candidate.settings?.defaultMediaMotion ?? 'zoom-pan',
+      qrDefaults: candidate.settings?.qrDefaults ?? {
+        enabled: true,
+        value: 'https://links.fscchurch.com/',
+        size: 160,
+        position: 'br',
+        offset: 18,
+        borderRadius: 16,
+      },
+      birthdayConfig: candidate.settings?.birthdayConfig ?? {
+        enabled: true,
+        names: ['Grace', 'Noah', 'Elena'],
+        date: 'Today',
+        darkness: 0.55,
+      },
     },
     slides: safeSlides,
   };
