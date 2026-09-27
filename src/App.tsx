@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { defaultContent, validateContent } from './content';
 import type { AppContent, Slide } from './types';
 
@@ -15,6 +15,9 @@ function App() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [overviewPage, setOverviewPage] = useState(0);
   const [transitionKey, setTransitionKey] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTab, setModalTab] = useState<'settings' | 'editor'>('settings');
+  const [editorDraft, setEditorDraft] = useState<Slide | null>(null);
 
   const overviewSlides = useMemo(() => getOverviewPages(content.slides), [content.slides]);
   const currentSlide = content.slides[activeSlideIndex] ?? content.slides[0];
@@ -68,12 +71,12 @@ function App() {
 
       if (event.key === 'ArrowRight') {
         event.preventDefault();
-        goToNextSlide();
+        goToNextOverviewPage();
       }
 
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
-        goToPreviousSlide();
+        goToPreviousOverviewPage();
       }
 
       if (event.key === 'Escape' || event.key === 'Home') {
@@ -89,6 +92,16 @@ function App() {
       if (event.key === 'ArrowDown') {
         event.preventDefault();
         setIsOverview(true);
+      }
+
+      if (event.key === 'd' || event.key === 'D') {
+        event.preventDefault();
+        openSettings();
+      }
+
+      if (event.key === 'e' || event.key === 'E') {
+        event.preventDefault();
+        openEditor();
       }
 
       if (event.key === '1') setPlaybackSpeed(1);
@@ -123,6 +136,17 @@ function App() {
     setTransitionKey((key) => key + 1);
   }, [content.slides.length]);
 
+  const goToNextOverviewPage = useCallback(() => {
+    setOverviewPage((page) => {
+      const pageCount = Math.max(1, Math.ceil(overviewSlides.length / 3));
+      return Math.min(page + 1, pageCount - 1);
+    });
+  }, [overviewSlides.length]);
+
+  const goToPreviousOverviewPage = useCallback(() => {
+    setOverviewPage((page) => Math.max(page - 1, 0));
+  }, []);
+
   const openSlide = useCallback((index: number) => {
     setActiveSlideIndex(index);
     setIsOverview(false);
@@ -136,6 +160,67 @@ function App() {
     setPlaybackSpeed(1);
   }, []);
 
+  const openSettings = useCallback(() => {
+    setModalTab('settings');
+    setIsModalOpen(true);
+  }, []);
+
+  const openEditor = useCallback(() => {
+    const selected = content.slides[activeSlideIndex] ?? content.slides[0];
+    setEditorDraft(
+      selected
+        ? {
+            ...selected,
+            body: [...selected.body],
+            tags: [...selected.tags],
+            media: selected.media ? selected.media.map((item) => ({ ...item })) : [],
+          }
+        : null,
+    );
+    setModalTab('editor');
+    setIsModalOpen(true);
+  }, [activeSlideIndex, content.slides]);
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setEditorDraft(null);
+  }, []);
+
+  const updateGlobalSetting = <K extends keyof AppContent['settings']>(
+    key: K,
+    value: AppContent['settings'][K],
+  ) => {
+    setContent((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        [key]: value,
+      },
+    }));
+  };
+
+  const updateEditorField = <K extends keyof Slide>(field: K, value: Slide[K]) => {
+    setEditorDraft((prev) => (prev ? { ...prev, [field]: value } : prev));
+  };
+
+  const applyEditorChanges = useCallback(() => {
+    if (!editorDraft) return;
+
+    setContent((prev) => ({
+      ...prev,
+      slides: prev.slides.map((slide) =>
+        slide.id === editorDraft.id
+          ? {
+              ...slide,
+              ...editorDraft,
+            }
+          : slide,
+      ),
+    }));
+    setIsModalOpen(false);
+    setEditorDraft(null);
+  }, [editorDraft]);
+
   const pageCount = Math.max(1, Math.ceil(overviewSlides.length / 3));
   const visibleSlides = overviewSlides.slice(overviewPage * 3, overviewPage * 3 + 3);
 
@@ -147,12 +232,12 @@ function App() {
 
   return (
     <div
-      className="app-shell"
+      className={`app-shell ${content.settings.theme}`}
       style={
         {
           ['--accent' as string]: content.settings.accentColor,
           ['--bg' as string]: content.settings.backgroundColor,
-        } as React.CSSProperties
+        } as CSSProperties
       }
     >
       <header className="topbar">
@@ -165,50 +250,48 @@ function App() {
         </div>
 
         <div className="topbar-actions">
-          <button className="ghost-button" onClick={goToOverview}>Overview</button>
-          <button className="ghost-button" onClick={() => setIsPlaying((value) => !value)}>
-            {isPlaying ? 'Pause' : 'Play'}
+          <button className="ghost-button" onClick={goToOverview} title="Overview (Home)">
+            Overview
+          </button>
+          <button className="ghost-button" onClick={() => setIsPlaying((value) => !value)} title="Play/Pause (Space)">
+            {isPlaying ? '⏸' : '▶'}
+          </button>
+          {isOverview && (
+            <>
+              <button
+                className="icon-button"
+                onClick={goToPreviousOverviewPage}
+                disabled={overviewPage === 0}
+                title="Previous page (←)"
+              >
+                ←
+              </button>
+              <span className="page-indicator">
+                {overviewPage + 1} / {pageCount}
+              </span>
+              <button
+                className="icon-button"
+                onClick={goToNextOverviewPage}
+                disabled={overviewPage >= pageCount - 1}
+                title="Next page (→)"
+              >
+                →
+              </button>
+            </>
+          )}
+          <button className="ghost-button" onClick={openSettings} title="Settings (D)">
+            ⚙
+          </button>
+          <button className="ghost-button" onClick={openEditor} title="Edit Slide (E)">
+            ✎
           </button>
         </div>
       </header>
 
       {isOverview ? (
         <main className="overview-page">
-          <div className="overview-header">
-            <div>
-              <p className="eyebrow">FEATURED</p>
-              <h1>{content.title}</h1>
-            </div>
-            <div className="pagination-cluster">
-              <button
-                className="pager-button"
-                disabled={overviewPage === 0}
-                onClick={() => setOverviewPage((page) => Math.max(page - 1, 0))}
-              >
-                Previous
-              </button>
-              <div className="pager-dots">
-                {Array.from({ length: pageCount }).map((_, index) => (
-                  <button
-                    key={index}
-                    className={`pager-dot ${overviewPage === index ? 'active' : ''}`}
-                    aria-label={`Go to page ${index + 1}`}
-                    onClick={() => setOverviewPage(index)}
-                  />
-                ))}
-              </div>
-              <button
-                className="pager-button"
-                disabled={overviewPage >= pageCount - 1}
-                onClick={() => setOverviewPage((page) => Math.min(page + 1, pageCount - 1))}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-
           <div className="overview-grid">
-            {visibleSlides.map((slide, idx) => (
+            {visibleSlides.map((slide) => (
               <button
                 key={slide.id}
                 className="overview-card"
@@ -249,7 +332,7 @@ function App() {
         </main>
       ) : (
         <main className="slide-stage">
-          <div key={transitionKey} className="slide-panel surface-${currentSlide.surface ?? 'automatic'}">
+          <div key={transitionKey} className={`slide-panel slide-surface-${currentSlide.surface ?? 'automatic'}`}>
             <div className="media-layer">
               {currentSlide.media?.[0] && currentSlide.media[0].type === 'image' ? (
                 <img src={currentSlide.media[0].src} alt={currentSlide.media[0].alt || currentSlide.title} />
@@ -271,7 +354,7 @@ function App() {
 
               <div className="body-block">
                 {currentSlide.body.map((line) => (
-                  <p key={line}>{line}</p>
+                  <p key={`${currentSlide.id}-${line}`}>{line}</p>
                 ))}
               </div>
 
@@ -283,19 +366,201 @@ function App() {
 
               <div className="tag-row">
                 {currentSlide.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
+                  <span key={`${currentSlide.id}-${tag}`}>{tag}</span>
                 ))}
               </div>
             </div>
 
             <div className="progress-wrap">
-              <div
-                className="progress-bar"
-                style={{ width: `${(progress / currentDuration) * 100}%` }}
-              />
+              <div className="progress-bar" style={{ width: `${(progress / currentDuration) * 100}%` }} />
             </div>
           </div>
         </main>
+      )}
+
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="panel editor-panel" onClick={(event) => event.stopPropagation()}>
+            <div className="panel-header">
+              <h3>{modalTab === 'settings' ? 'Kiosk Settings' : 'Edit Slide'}</h3>
+              <button className="close-button" onClick={closeModal} aria-label="Close panel">
+                ×
+              </button>
+            </div>
+
+            <div className="modal-tabs">
+              <button
+                className={modalTab === 'settings' ? 'tab-button active' : 'tab-button'}
+                onClick={() => setModalTab('settings')}
+              >
+                Settings
+              </button>
+              <button
+                className={modalTab === 'editor' ? 'tab-button active' : 'tab-button'}
+                onClick={() => setModalTab('editor')}
+              >
+                Edit Slide
+              </button>
+            </div>
+
+            {modalTab === 'settings' ? (
+              <div className="settings-grid">
+                <label>
+                  Default duration
+                  <input
+                    type="number"
+                    min={5}
+                    max={60}
+                    value={content.settings.defaultDuration}
+                    onChange={(event) =>
+                      updateGlobalSetting('defaultDuration', Number(event.target.value) || 12)
+                    }
+                  />
+                </label>
+
+                <label>
+                  Theme
+                  <select
+                    value={content.settings.theme}
+                    onChange={(event) => updateGlobalSetting('theme', event.target.value as 'light' | 'dark')}
+                  >
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                  </select>
+                </label>
+
+                <label>
+                  Accent color
+                  <input
+                    type="color"
+                    value={content.settings.accentColor}
+                    onChange={(event) => updateGlobalSetting('accentColor', event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  Background color
+                  <input
+                    type="color"
+                    value={content.settings.backgroundColor}
+                    onChange={(event) => updateGlobalSetting('backgroundColor', event.target.value)}
+                  />
+                </label>
+              </div>
+            ) : (
+              editorDraft && (
+                <div className="editor-grid">
+                  <label className="full-width">
+                    Slide title
+                    <input
+                      value={editorDraft.title}
+                      onChange={(event) => updateEditorField('title', event.target.value)}
+                    />
+                  </label>
+
+                  <label className="full-width">
+                    Subheading
+                    <input
+                      value={editorDraft.subheading ?? ''}
+                      onChange={(event) => updateEditorField('subheading', event.target.value)}
+                    />
+                  </label>
+
+                  <label className="full-width">
+                    Body (one per line)
+                    <textarea
+                      rows={6}
+                      value={editorDraft.body.join('\n')}
+                      onChange={(event) =>
+                        updateEditorField(
+                          'body',
+                          event.target.value
+                            .split('\n')
+                            .map((entry) => entry.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                    />
+                  </label>
+
+                  <label className="full-width">
+                    Tags (comma separated)
+                    <input
+                      value={editorDraft.tags.join(', ')}
+                      onChange={(event) =>
+                        updateEditorField(
+                          'tags',
+                          event.target.value
+                            .split(',')
+                            .map((tag) => tag.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                    />
+                  </label>
+
+                  <label>
+                    Kind
+                    <input
+                      value={editorDraft.kind ?? 'event'}
+                      onChange={(event) => updateEditorField('kind', event.target.value)}
+                    />
+                  </label>
+
+                  <label>
+                    Duration
+                    <input
+                      type="number"
+                      min={5}
+                      max={60}
+                      value={editorDraft.duration ?? content.settings.defaultDuration}
+                      onChange={(event) =>
+                        updateEditorField('duration', Number(event.target.value) || content.settings.defaultDuration)
+                      }
+                    />
+                  </label>
+
+                  <label className="full-width">
+                    CTA label
+                    <input
+                      value={editorDraft.cta?.label ?? ''}
+                      onChange={(event) =>
+                        updateEditorField('cta', {
+                          label: event.target.value,
+                          href: editorDraft.cta?.href ?? 'https://fscchurch.com/',
+                        })
+                      }
+                    />
+                  </label>
+
+                  <label className="full-width">
+                    CTA URL
+                    <input
+                      value={editorDraft.cta?.href ?? ''}
+                      onChange={(event) =>
+                        updateEditorField('cta', {
+                          label: editorDraft.cta?.label ?? 'Learn More',
+                          href: event.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </div>
+              )
+            )}
+
+            <div className="modal-actions">
+              <button className="secondary-button" onClick={closeModal}>
+                Cancel
+              </button>
+              {modalTab === 'editor' && (
+                <button className="primary-button" onClick={applyEditorChanges}>
+                  Save
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
